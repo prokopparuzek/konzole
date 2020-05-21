@@ -1,8 +1,9 @@
 #include <Arduino.h>
 
 #define SER 13
-#define CLK 12
-#define ENABLE 8
+#define CLK 8
+#define ENABLE 12
+
 
 void setup() {
     pinMode(SER, OUTPUT);
@@ -10,7 +11,7 @@ void setup() {
     pinMode(ENABLE, OUTPUT);
     digitalWrite(ENABLE, LOW);
     shiftOut(SER, CLK, MSBFIRST,0x00);
-    shiftOut(SER, CLK, MSBFIRST,0xFF);
+    shiftOut(SER, CLK, MSBFIRST,0xF0);
     digitalWrite(ENABLE, HIGH);
 }
 

@@ -8,7 +8,9 @@
                 "~/bin/arduino-1.8.12/hardware/tools/avr/avr/include/",
                 "~/bin/arduino-1.8.12/hardware/arduino/avr/variants/mega",
                 "~/bin/arduino-1.8.12/hardware/arduino/avr/libraries/Wire/src",
-                "~/Arduino/libraries/LiquidCrystal_I2C/"
+                "~/Arduino/libraries/LiquidCrystal_I2C/",
+                "/home/prokop/bin/arduino-1.8.12/hardware/arduino/avr/**",
+                "/home/prokop/bin/arduino-1.8.12/tools/**"
             ],
             "browse": {
                 "limitSymbolsToIncludedHeaders": false,
@@ -27,6 +29,7 @@
             "cStandard": "c11",
             "cppStandard": "c++17",
             "forcedInclude": [
+                "/home/prokop/bin/arduino-1.8.12/hardware/arduino/avr/cores/arduino/Arduino.h"
             ]
         }
     ],
