@@ -21,7 +21,8 @@
                     "~/bin/arduino-1.8.12/hardware/arduino/avr/variants/standard",
                     "~/bin/arduino-1.8.12/hardware/arduino/avr/variants/mega",
                     "~/bin/arduino-1.8.12/hardware/arduino/avr/libraries/Wire/",
-                    "~/Arduino/libraries/LiquidCrystal_I2C/"
+                    "~/Arduino/libraries/LiquidCrystal_I2C/",
+                    "${workspaceFolder}"
                 ]
             },
             "intelliSenseMode": "clang-x64",
