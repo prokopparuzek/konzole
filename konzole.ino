@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
+#include "music/tetris.h"
 
 #define RED 11
 #define YELLOW 10
@@ -13,6 +14,11 @@
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
+int note = 0;
+unsigned long int timer;
+uint16_t fr;
+uint16_t length;
+
 void setup() {
     // LED setup
     pinMode(RED, OUTPUT);
@@ -23,18 +29,22 @@ void setup() {
     pinMode(RIGHT, INPUT_PULLUP);
     // beep setup
     pinMode(BEEP, OUTPUT);
-    tone(BEEP, 884);
     //lcd setup
     lcd.init();
     lcd.backlight();
     lcd.home();
     lcd.print(F("Omen Charlie"));
-
+    // Serial setup
     Serial.begin(9600);
     Serial.println(F("test"));
+    // start play music
+    fr = pgm_read_word_near(song);
+    timer = millis();
+    tone(BEEP, fr);
 }
 
 void loop() {
+    sound(); // play music
     if (digitalRead(LEFT) == LOW) {
         for (int i = 9; i <= 11; i++) {
             digitalWrite(i, HIGH);
@@ -45,5 +55,20 @@ void loop() {
             digitalWrite(i, LOW);
         }
     }
-    delay(1000);
+}
+
+void sound() { // change tone if needed
+    length = pgm_read_word_near(song + 2*note + 1);
+    if ((millis()-timer) >= length) {
+        if (note == sizeof(song)/4-1) {
+            note = 0;
+        } else {
+            note++;
+        }
+        fr = pgm_read_word_near(song + 2*note);
+        noTone(BEEP);
+        delay(length>>4);
+        tone(BEEP, fr);
+        timer = millis();
+    }
 }
