@@ -13,6 +13,8 @@
 
 #define BEEP 5
 
+#define CHANGE_LEVEL 10
+
 #define DINO 0
 #define TREE 1
 #define CLEAR 2
@@ -38,7 +40,7 @@ byte octave = 0;
 bool dinoGround = true;
 uint16_t trees = 0;
 byte difficulty = 0x7;
-uint16_t refresh = 500;
+uint16_t refresh = 600;
 uint16_t score = 0;
 
 void setup() {
@@ -47,9 +49,11 @@ void setup() {
   pinMode(YELLOW, OUTPUT);
   pinMode(GREEN, OUTPUT);
   digitalWrite(GREEN, HIGH);
+  digitalWrite(YELLOW, LOW);
+  digitalWrite(RED, LOW);
   // button setup
   pinMode(LEFT, INPUT_PULLUP);
-  pinMode(RIGHT, INPUT_PULLUP);
+  // pinMode(RIGHT, INPUT_PULLUP);
   // beep setup
   pinMode(BEEP, OUTPUT);
   // random setup
@@ -74,6 +78,7 @@ void setup() {
   moveTrees();
   showDino();
   showTrees();
+  printScore();
 }
 
 void loop() {
@@ -82,18 +87,19 @@ void loop() {
 }
 
 void game() {
-  bool left = digitalRead(LEFT);
-  if (left == LOW && dinoGround && millis() - timerDino >= refresh - 100) {
+  if (digitalRead(LEFT) == LOW && dinoGround &&
+      (millis() - timerDino) >= (refresh / 3)) {
     dinoGround = false;
+    showDino();
     timerDino = millis();
   }
-  if (!dinoGround && millis() - timerDino >= refresh + 500) {
+  if (!dinoGround && (millis() - timerDino) >= (refresh << 1)) {
     dinoGround = true;
+    showDino();
     timerDino = millis();
   }
   if (millis() - timerGame >= refresh) {
-    if (dinoGround && (trees & 0x4000)) {
-      // end
+    if (dinoGround && (trees & 0x4000)) {  // end
       lcd.setCursor(1, 0);
       lcd.write(CLEAR);
       lcd.setCursor(1, 1);
@@ -103,8 +109,8 @@ void game() {
         ;
       resetFunc();
     }
-    lcd.clear();
     moveTrees();
+    lcd.clear();
     showDino();
     showTrees();
     printScore();
@@ -140,8 +146,8 @@ void moveTrees() {
   }
   if (trees & 0x8000) {
     score++;
-    if (score % 10 == 0) {
-      refresh -= 150;
+    if (score % CHANGE_LEVEL == 0 && difficulty > 1) {
+      refresh -= 100;
       led();
       difficulty >>= 1;
     }
@@ -157,6 +163,13 @@ void showTrees() {
     }
     mask >>= 1;
   }
+}
+
+void led() {
+  static byte l = 9;
+  digitalWrite(l, LOW);
+  l++;
+  digitalWrite(l, HIGH);
 }
 
 void sound() {  // change tone if needed
@@ -178,11 +191,4 @@ void sound() {  // change tone if needed
       noTone(BEEP);
     }
   }
-}
-
-void led() {
-  static byte l = 9;
-  digitalWrite(l, LOW);
-  l++;
-  digitalWrite(l, HIGH);
 }
