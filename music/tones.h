@@ -1,6 +1,10 @@
 #pragma once
 // tones and its frequency
 #define POMLKA	0
+#define G   98
+#define Ab  104
+#define A   110
+#define B   117
 #define H   124
 #define c   131
 #define db  139

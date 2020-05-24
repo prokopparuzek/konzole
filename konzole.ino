@@ -19,7 +19,7 @@ int note = 0;
 unsigned long int timer;
 uint16_t fr;
 uint16_t length;
-byte octave = 1;
+byte octave = 0;
 
 void setup() {
   // LED setup
@@ -64,7 +64,7 @@ void sound() {  // change tone if needed
   if ((millis() - timer) >= length) {
     if (note == sizeof(song) / 4 - 1) {
       note = 0;
-      octave = octave < POSUN ? octave + 1 : 1;
+      octave = octave < POSUN ? octave + 1 : 0;
     } else {
       note++;
     }
@@ -73,7 +73,7 @@ void sound() {  // change tone if needed
     if (fr != 0) {
       noTone(BEEP);
       delay(length >> 4);
-      tone(BEEP, fr * octave);
+      tone(BEEP, fr << octave);
     } else {
       noTone(BEEP);
     }
