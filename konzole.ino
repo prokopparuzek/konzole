@@ -37,7 +37,7 @@ uint16_t length;
 byte octave = 0;
 bool dinoGround = true;
 uint16_t trees = 0;
-byte difficulty = 0xE;
+byte difficulty = 0x7;
 uint16_t refresh = 500;
 uint16_t score = 0;
 
@@ -46,6 +46,7 @@ void setup() {
   pinMode(RED, OUTPUT);
   pinMode(YELLOW, OUTPUT);
   pinMode(GREEN, OUTPUT);
+  digitalWrite(GREEN, HIGH);
   // button setup
   pinMode(LEFT, INPUT_PULLUP);
   pinMode(RIGHT, INPUT_PULLUP);
@@ -82,7 +83,7 @@ void loop() {
 
 void game() {
   bool left = digitalRead(LEFT);
-  if (left == LOW && dinoGround && millis() - timerDino >= refresh - 200) {
+  if (left == LOW && dinoGround && millis() - timerDino >= refresh - 100) {
     dinoGround = false;
     timerDino = millis();
   }
@@ -93,6 +94,8 @@ void game() {
   if (millis() - timerGame >= refresh) {
     if (dinoGround && (trees & 0x4000)) {
       // end
+      lcd.setCursor(1, 0);
+      lcd.write(CLEAR);
       lcd.setCursor(1, 1);
       lcd.write(HEAD);
       noTone(BEEP);
@@ -129,12 +132,19 @@ void printScore() {
 }
 
 void moveTrees() {
-  trees <<= 1;
   if (random(0, 2) && (trees & difficulty) == 0) {
+    trees <<= 1;
     trees |= 0x1;
+  } else {
+    trees <<= 1;
   }
   if (trees & 0x8000) {
     score++;
+    if (score % 10 == 0) {
+      refresh -= 150;
+      led();
+      difficulty >>= 1;
+    }
   }
 }
 
@@ -168,4 +178,11 @@ void sound() {  // change tone if needed
       noTone(BEEP);
     }
   }
+}
+
+void led() {
+  static byte l = 9;
+  digitalWrite(l, LOW);
+  l++;
+  digitalWrite(l, HIGH);
 }
