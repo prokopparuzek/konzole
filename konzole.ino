@@ -16,8 +16,7 @@
 #define DINO 0
 #define TREE 1
 #define CLEAR 2
-
-#define DINO_POSITION 1
+#define HEAD 3
 
 // reset
 void (*resetFunc)(void) = 0;
@@ -25,21 +24,22 @@ void (*resetFunc)(void) = 0;
 byte dino[] = {0x06, 0x0D, 0x0F, 0x0E, 0x1F, 0x1E, 0x0A, 0x0A};
 byte tree[] = {0x04, 0x1F, 0x0E, 0x04, 0x1F, 0x0E, 0x04, 0x04};
 byte clear[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+byte head[] = {0x00, 0x0E, 0x15, 0x1F, 0x0E, 0x00, 0x0E, 0x00};
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 int note = 0;
 unsigned long int timerSong;
 unsigned long int timerGame;
+unsigned long int timerDino;
 uint16_t fr;
 uint16_t length;
 byte octave = 0;
-bool dinoUp = false;
 bool dinoGround = true;
 uint16_t trees = 0;
 byte difficulty = 0xE;
-uint16_t score = 0;
 uint16_t refresh = 500;
+uint16_t score = 0;
 
 void setup() {
   // LED setup
@@ -58,6 +58,7 @@ void setup() {
   lcd.createChar(DINO, dino);
   lcd.createChar(TREE, tree);
   lcd.createChar(CLEAR, clear);
+  lcd.createChar(HEAD, head);
   lcd.backlight();
   // Serial setup
   Serial.begin(9600);
@@ -67,6 +68,7 @@ void setup() {
   tone(BEEP, fr);
   // game init
   timerGame = millis();
+  timerDino = millis();
   lcd.clear();
   moveTrees();
   showDino();
@@ -80,29 +82,23 @@ void loop() {
 
 void game() {
   bool left = digitalRead(LEFT);
-  if (left == LOW && dinoGround) {
-    dinoUp = true;
+  if (left == LOW && dinoGround && millis() - timerDino >= refresh - 200) {
     dinoGround = false;
-    showDino();
+    timerDino = millis();
+  }
+  if (!dinoGround && millis() - timerDino >= refresh + 500) {
+    dinoGround = true;
+    timerDino = millis();
   }
   if (millis() - timerGame >= refresh) {
     if (dinoGround && (trees & 0x4000)) {
       // end
-      lcd.clear();
-      lcd.setCursor(4, 0);
-      lcd.print(F("The END"));
-      lcd.setCursor(4, 1);
-      lcd.print(score);
+      lcd.setCursor(1, 1);
+      lcd.write(HEAD);
       noTone(BEEP);
       while (digitalRead(LEFT))
         ;
       resetFunc();
-    }
-    if (!dinoUp && !dinoGround) {
-      dinoGround = true;
-    }
-    if (dinoUp && !dinoGround) {
-      dinoUp = false;
     }
     lcd.clear();
     moveTrees();
