@@ -16,9 +16,9 @@
 
 #define CHANGE_LEVEL 10
 
-#define DINO 0
+#define CLEAR 0
 #define TREE 1
-#define CLEAR 2
+#define DINO 2
 #define HEAD 3
 
 // reset
@@ -75,10 +75,7 @@ void setup() {
   // game init
   timerGame = millis();
   timerDino = millis();
-  lcd.clear();
-  moveTrees();
   showDino();
-  showTrees();
   printScore();
 }
 
@@ -92,6 +89,7 @@ void game() {
       (millis() - timerDino) >= (refresh / 3)) {
     dinoGround = false;
     showDino();
+    showTrees();
     timerDino = millis();
   }
   if (!dinoGround && (millis() - timerDino) >= (refresh << 1)) {
@@ -111,10 +109,7 @@ void game() {
       resetFunc();
     }
     moveTrees();
-    lcd.clear();
-    showDino();
     showTrees();
-    printScore();
     timerGame = millis();
   }
 }
@@ -125,8 +120,6 @@ void showDino() {
     lcd.write(CLEAR);
     lcd.setCursor(1, 1);
   } else {
-    lcd.setCursor(1, 1);
-    lcd.write(CLEAR);
     lcd.setCursor(1, 0);
   }
   lcd.write(DINO);
@@ -147,6 +140,7 @@ void moveTrees() {
   }
   if (trees & 0x8000) {
     score++;
+    printScore();
     if (score % CHANGE_LEVEL == 0 && difficulty > 1) {
       refresh -= 100;
       led();
@@ -158,9 +152,9 @@ void moveTrees() {
 void showTrees() {
   uint16_t mask = 0x8000;
   for (int i = 0; i < 16; i++) {
-    if (trees & mask) {
+    if (!(dinoGround && mask == 0x4000)) {
       lcd.setCursor(i, 1);
-      lcd.write(TREE);
+      lcd.write(bool(trees & mask));
     }
     mask >>= 1;
   }
