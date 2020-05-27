@@ -1,5 +1,6 @@
 #include <Arduino.h>
 // https://github.com/johnrickman/LiquidCrystal_I2C.git
+#include <EEPROM.h>
 #include <LiquidCrystal_I2C.h>
 #include <Wire.h>
 
@@ -43,6 +44,7 @@ uint16_t trees = 0;
 byte difficulty = 0x7;
 uint16_t refresh = 600;
 uint16_t score = 0;
+uint16_t maxScore;
 
 void setup() {
   // LED setup
@@ -59,6 +61,10 @@ void setup() {
   pinMode(BEEP, OUTPUT);
   // random setup
   randomSeed(analogRead(A0));
+  // maxScore setup
+  maxScore = EEPROM.read(1);
+  maxScore <<= 8;
+  maxScore |= EEPROM.read(0);
   // lcd setup
   lcd.init();
   lcd.createChar(DINO, dino);
@@ -101,6 +107,13 @@ void game() {
     lcd.setCursor(1, 1);
     lcd.write(HEAD);
     noTone(BEEP);
+    if (score > maxScore) {
+      EEPROM.write(0, byte(score));
+      EEPROM.write(1, byte(score >> 8));
+    }
+    lcd.setCursor(3, 1);
+    lcd.print(F("MaxScore:"));
+    lcd.print(maxScore);
     delay(3000);
     while (digitalRead(LEFT))
       ;
