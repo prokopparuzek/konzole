@@ -96,7 +96,7 @@ void game() {
     showTrees();
     timerDino = millis();
   }
-  if (!dinoGround && (millis() - timerDino) >= (refresh << 1)) {
+  if (!dinoGround && (millis() - timerDino) >= ((refresh * 3) >> 1)) {
     dinoGround = true;
     showDino();
     timerDino = millis();
@@ -114,7 +114,7 @@ void game() {
     lcd.setCursor(3, 1);
     lcd.print(F("MaxScore:"));
     lcd.print(maxScore);
-    delay(3000);
+    delay(1000);
     while (digitalRead(LEFT))
       ;
     resetFunc();
