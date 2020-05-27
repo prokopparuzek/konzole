@@ -33,8 +33,8 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 int note = 0;
 unsigned long int timerSong;
-unsigned long int timerGame;
-unsigned long int timerDino;
+unsigned long int timerGame = 0;
+unsigned long int timerDino = 0;
 uint16_t fr;
 uint16_t length;
 byte octave = 0;
@@ -73,8 +73,6 @@ void setup() {
   timerSong = millis();
   tone(BEEP, fr);
   // game init
-  timerGame = millis();
-  timerDino = millis();
   showDino();
   printScore();
 }
@@ -97,17 +95,18 @@ void game() {
     showDino();
     timerDino = millis();
   }
+  if (dinoGround && (trees & 0x4000)) {  // end
+    lcd.setCursor(1, 0);
+    lcd.write(CLEAR);
+    lcd.setCursor(1, 1);
+    lcd.write(HEAD);
+    noTone(BEEP);
+    delay(3000);
+    while (digitalRead(LEFT))
+      ;
+    resetFunc();
+  }
   if (millis() - timerGame >= refresh) {
-    if (dinoGround && (trees & 0x4000)) {  // end
-      lcd.setCursor(1, 0);
-      lcd.write(CLEAR);
-      lcd.setCursor(1, 1);
-      lcd.write(HEAD);
-      noTone(BEEP);
-      while (digitalRead(LEFT))
-        ;
-      resetFunc();
-    }
     moveTrees();
     showTrees();
     timerGame = millis();
